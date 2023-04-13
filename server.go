@@ -15,7 +15,7 @@ type Message struct {
 	Ender bool
 }
 
-func HandleClient(client io.ReadWriteCloser, servRead <-chan Message, servWrite chan<- Message) error {
+func HandleClient(client io.ReadCloser, servWrite chan<- Message) error {
 	defer client.Close()
 	ec := make(chan error)
 
@@ -24,7 +24,7 @@ func HandleClient(client io.ReadWriteCloser, servRead <-chan Message, servWrite 
 		defer func() {
 			servWrite <- Message{ClientName: startmsg.ClientName, Ender: true}
 			ec <- err
-		}
+		}()
 
 		enc := json.Encoder(client)
 
