@@ -2,6 +2,8 @@
 package main
 
 import (
+	"os"
+	"flag"
 	"io"
 	"bufio"
 	"encoding/json"
@@ -66,26 +68,15 @@ func HandleConn(conn io.ReadWriteCloser, term io.ReadWriter, name string) error 
 }
 
 func main() {
-        //establish connection
-        conn, err := net.Dial("tcp", "localhost:9988")
+	namep := flag.String("n", "me", "name")
+	dialp := flag.String("d", "localhost:9988", "Address to dial")
+	flag.Parse()
+
+        conn, err := net.Dial("tcp", *dialp)
         if err != nil {
                 panic(err)
         }
         defer conn.Close()
 
-        ///send some data
-	enc := json.NewEncoder(conn)
-	dec := json.NewDecoder(conn)
-
-	err = enc.Encode(20)
-        if err != nil {
-                panic(err)
-        }
-
-	var f int
-        err = dec.Decode(&f)
-        if err != nil {
-                fmt.Println("Error reading:", err.Error())
-        }
-	fmt.Println("f:", f)
+	err = HandleConn(conn, os.Stdin, *namep)
 }
